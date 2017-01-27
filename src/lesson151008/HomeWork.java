@@ -7,14 +7,15 @@ public class HomeWork {
 	public static void main(String[] args) {
 		
 		System.out.println("start");
-		double[][] matrix = generate();
-		
-		System.out.println("generated");
-		
 		long start = System.nanoTime();
-		process(matrix);
+		double[][] matrix = generate();
+		System.out.println("generated");
 		long stop = System.nanoTime();
-		
+		System.out.println("Elapsed = " + (stop - start));
+
+		start = System.nanoTime();
+		process(matrix);
+		stop = System.nanoTime();
 		System.out.println("Elapsed = " + (stop - start));
 		
 	}
@@ -25,12 +26,7 @@ public class HomeWork {
 		
 		for (int i = 0; i < matrix.length; i++) {
 			final double[] row = matrix[i];
-			threads[i] = new Thread() {
-				@Override
-				public void run() {
-					processRow(row);
-				};
-			};
+			threads[i] = new Thread(() -> processRow(row));
 			threads[i].start();
 		}
 		
@@ -51,15 +47,24 @@ public class HomeWork {
 
 	private static double[][] generate() {
 		
-		//TODO  make me multi-threaded!
-		
-		Random random = new Random();
-		
-		double[][] matrix = new double[10][10_000_000];
-		
+		double[][] matrix = new double[10][50_000_000];
+		Thread[] threads = new Thread[matrix.length];
 		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[i].length; j++) {
-				matrix[i][j] = random.nextDouble();
+			final int k = i;
+			threads[k] = new Thread(() -> {
+				Random random = new Random();
+				for (int j = 0; j < matrix[k].length; j++) {
+					matrix[k][j] = random.nextDouble();
+				}
+			});
+			threads[k].start();
+		}
+
+		for (Thread thread : threads) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 		

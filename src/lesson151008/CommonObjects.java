@@ -16,14 +16,8 @@ public class CommonObjects {
 		
 	}
 
-	private static void a(final Data d) {
-		new Thread() {
-			@Override
-			public void run() {
-				System.out.println(d.x);
-			};
-			
-		}.start();
+	private static void a(Data d) {
+		new Thread(() -> System.out.println(d.x)).start();
 		
 	}
 
